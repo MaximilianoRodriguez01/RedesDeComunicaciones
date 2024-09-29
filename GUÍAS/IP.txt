@@ -1,0 +1,549 @@
+Guía de Ejercicios IP 
+Redes de Comunicaciones ‐ Abril 2024 
+
+1. ¿Cómo se calcula la longitud de los datos en un datagrama IP? 
+
+Restando el total lenght menos la cabecera (header lenght).
+El header lenght se multiplica por 4 bytes. Ejemplo si pongo 5 (*4) representa 20 bytes.
+Como máximo el HL puede ser 15*4 = 60 bytes
+
+2. Explique la función del campo de Identificación del datagrama IP.  
+
+Si se fragmenta el Payload, todos los fragmentos tienen el mismo campo identificación. Si llega un duplicado
+lo puedo reconocer por el ID
+
+3. ¿Cuál es la utilidad del campo TTL?  
+Cada vez que pasa por un router se le resta 1 entonces cuando llega a 0 se descarta el datagrama.
+Puede vivir como máximo 255 saltos. (2^8 - 1)
+
+4. ¿Usted cree necesario y útil el protocolo ICMP? Justifique.  
+
+
+
+5. ¿Qué tipos de mensajes puede llevar el protocolo ICMP?  
+
+6. ¿Por qué se utiliza la aplicación ‘traceroute’ para relevar las direcciones IP del camino que sigue un 
+datagrama IP en llegar a destino en lugar de utilizar dicho datagrama con la opción IP ‘Record Route’ para 
+almacenar las direcciones IP del camino utilizado? 
+
+Hay dos problemas. Un problema es que algunos routers no lo tienen habilitado. 2do problema, el header puede tener como
+máximo 40 bytes, y si tengo que guardar muchas ip en el camino de ida y vuelta no voy a poder registrar la ruta completa.
+
+
+7. ¿Qué significa un servicio Best‐effort ? ¿Se puede implementar QoS utilizando IP? 
+
+Garantiza lo mínimo posible. El datagrama puede llegar o no, no lo confirma. 
+No asegura latencia, no enumera los datagramas, no asegura q lleguen, no sabe si esta congestionado … 
+No podemos hacer calidad de servicio.
+
+8. Indicar cuáles de las siguientes afirmaciones son correctas: 
+
+a) Si el offset de un datagrama IP es nulo es condición suficiente para concluir que no fue fragmentado. 
+
+Falso porque si es el primer fragmento del datagrama ese tiene offset 0. El offset es un puntero
+que indica la posición respecto del datagrama original. MORE FRAGMENT = 0 me indica q no hay mas fragmentos.
+
+b) El host destino puede reensamblar los fragmentos de un datagrama IP. 
+
+Es verdadero.
+
+c) Un router puede reensamblar los fragmentos de un datagrama IP si el MTU de la red por la que 
+forwardea puede soportar el datagrama reensamblado. 
+
+ES FALSO si es que el router no es el destino.
+
+
+
+d) Si el host destino no logra reunir los datagramas IP en un determinado intervalo de tiempo envía un 
+mensaje ICMP de TTL Exceeded. 
+
+falso
+
+e) Si un router no logra reunir los datagramas IP en un determinado intervalo de tiempo envía un 
+mensaje ICMP de Time Exceeded. 
+
+verdadero si el router fuese el destino.
+
+f) Si el TTL se hace nulo en alguno de los fragmentos, el router que procesa dicho fragmento lo descarta 
+y envía un mensaje ICMP Destination Unreachable. 
+
+Falso, no manda ICMP Destination Unreachable,  manda TTL EXCEEDED.
+
+9. Dado un datagrama de 1000 B que debe atravesar una red de MTU = 300 B, escriba los headers de todos 
+los fragmentos.  
+
+TOTAL LENGTH = 1000 Bytes
+PAYLOAD = 980 Bytes
+MTU = 300 Bytes
+
+El primer fragmento es 20 + 280 
+TOTAL LENGTH = 300
+OFFSET = 0
+MORE FRAGMENT = 1
+
+Segundo fragmento 20 + 280
+TOTAL LENGTH = 300
+OFFSET = 280 / 8 = 35
+MORE FRAGMENT = 1
+
+Tercer fragmento 20 + 280
+TOTAL LENGTH = 300
+OFFSET = 70
+MORE FRAGMENT = 1
+
+Cuarto fragmento 20 + 140
+TOTAL LENGTH 160
+OFFSET = 105
+MORE FRAGMENT = 0
+
+
+10. Si en el ejercicio anterior el datagrama atravesara otra red de MTU = 200 B, escriba los headers de todos 
+los fragmentos.
+
+  
+
+11. En el siguiente esquema de red, el host A envía un ping al host B pero el mismo se encuentra apagado. 
+Suponiendo que todos los routers y hosts tienen activados sus protocolos ICMP sin filtrar, indicar si el ping 
+se realiza con éxito o qué sucede en caso contrario.
+
+El router B manda un destination unreacheable porque el host B esta apagado. Y si cree que está prendido,
+no vuelve nada.
+
+12. Un host A envía un ping a un host B y configura el TTL del datagrama IP que encapsula el mensaje ICMP 
+Echo Request en un valor igual a 200. Entre el host A y el host B existe un único camino comprendido por 
+5 saltos, sin embargo, el TTL del datagrama IP que encapsula el mensaje ICMP Echo Reply generado por el 
+host B hacia el host A tiene un valor igual a 15. A qué se debe? 
+
+
+Cuando el Host B envia el Echo Reply, lo manda con otro TTL, no necesariamente es el mismo que el del Host A.
+
+
+13. Dado el siguiente datagrama IP (Los dígitos son hexadecimales):
+45 00 00 2c 06 00 40 00 
+20 06 28 4f 82 39 14 0a 
+82 39 14 01 04 02 02 0c 
+00 00 32 98 00 00 00 00 
+60 02 20 00 13 03 00 00 
+02 04 05 b4 
+Responda: 
+a) Indique las direcciones IP origen y destino en su formato correspondiente 
+
+
+Origen renglón 4
+Destino renglón 5
+
+Los primeros 3 renglones son 4 byte por renglón. Contamos hasta 12 y tenemos la dirección IP de origen
+
+82 39 14 0a -> 130 . 120 . 20 . 4
+82 39 14 01 -> 130 . 120 . 20 . 1
+
+
+b) ¿Si la red destino tiene definido un MTU = 20 bytes, el datagrama será fragmentado? 
+
+No se puede enviar nada porque solo podría mandar el header
+
+c) ¿Cuántas redes podrá atravesar antes de llegar a destino? 
+
+TTL = 20_HEX = 32
+Cada router lo hace restar 1, y en 0 no puede circular asi que hasta 31 routers
+pueden pasar
+
+d) ¿Tiene opciones? Justifique. 
+
+El header length tiene 20 bytes, y 20 es el header básico por lo que no tiene campo de opciones
+
+e) ¿El campo de datos contiene protocolo auxiliar o de transporte?
+
+De transporte TCP
+
+
+
+14. Usted obtuvo la dirección IP 205.25.67.0. Determinó que necesita crear 5 subredes. 
+Complete la siguiente tabla teniendo en cuenta que las subredes “todo 0” y “todo 1” no se pueden 
+utilizar: 
+
+
+Número mínimo de bits para las subredes: 
+
+Es una clase C - el campo host empieza en el ultimo octeto.
+
+Si quiero crear 5 subredes
+
+205.25.67. xxxx xxxx
+
+Con 3 bits tengo 2^8 - 2 = 6 me sirve
+
+000 ------ esta no
+001 ------ 1
+010 ------ 2
+011 ------ 3
+100 ------ 4
+101 ------ 5
+110 ------ 6
+111 ------ esta tampoco
+
+
+
+Máscara: 255.255.255.224 
+
+Prefijo: /27
+
+Primera dirección de host de la quinta subred: 1010 0001
+
+205.25.67.161
+
+Dirección de Broadcast de la tercera subred: 
+
+205.25.67.127
+
+Número total de direcciones que no se utilizan: 
+
+Me queda sin usar una subred, esa subred usa 2^5 - 2 = 30
+
+
+15. Dada la siguiente tabla de ruteo basada en clases, reescríbala utilizando CIDR intentando minimizar lo más 
+posible el número de entradas: 
+212.128.175.0  15.0.0.1 
+212.128.176.0  15.0.0.1 
+212.128.177.0 15.0.0.1
+212.128.178.0  15.0.0.1 
+212.128.179.0  15.0.0.1 
+212.128.180.0 15.0.0.1
+212.128.181.0  15.0.0.1 
+212.128.182.0  15.0.0.1 
+212.128.183.0 15.0.0.1
+212.128.184.0  15.0.0.1 
+212.128.185.0  15.0.0.1 
+
+16. Resolver: En la tabla de ruteo siguiente indique la entrada que tendrán correspondencia con la dirección 
+destino 128.9.200.20. Por qué interfaz será transmitido un datagrama que tenga esa dirección destino. 
+Explicar. 
+128.0.0.0/8  3 
+128.9.0.0/16  5 
+128.9.192.0/20 2
+128.9.192.0/22  4 
+128.9.192.0/24  7 
+128.9.200.0/24  8 
+128.9.200.0/28 10
+128.9.200.16/28  1 
+128.9.200.16/30  9 
+128.9.192.8/30 6
+
+17. Suponer que la siguiente secuencia de bytes, en hexadecimal, es una cabecera IP. Y responder a las 
+siguientes cuestiones: 
+45 00 00 4E C3 2A 00 00 80 11 17 44 82 CE AA 94 82 CE AF FF 
+a) ¿Cuál es la longitud del datagrama? 
+
+78 + 20 = 98 bytes
+
+b) ¿Se trata de un fragmento? 
+
+c) ¿A qué hosts (IP) va dirigido? 
+
+d) ¿Qué host lo envió? 
+
+e) Discutir si están o no en la misma red. 
+
+18. Para las siguientes direcciones de hosts y máscaras de subred encuentre la subred a la que pertenece 
+cada host, la dirección de broadcast de cada subred y el rango de direcciones de hosts para cada subred: 
+a) 10.14.87.60/19 
+
+b) 172.25.0.235/27 
+
+c) 172.25.16.37/25 
+
+19. Se desea configurar una interfaz con la dirección 192.168.13.175 con una máscara de 255.255.255.240, 
+hay algún problema? 
+
+20. Dados los siguientes resultados en la ejecución del ping: 
+C:\>ping 170.6.2.23 
+Haciendo ping 170.6.2.23 con 32 bytes de datos: 
+Respuesta desde 170.6.2.23: bytes=32 tiempo=241.4 ms TTL=249 
+Respuesta desde 170.6.2.23: bytes=32 tiempo=244.8 ms TTL=249 
+Tiempo de espera agotado para esta solicitud. 
+Respuesta desde 170.6.2.23: bytes=32 tiempo=237.1 ms TTL=249 
+Estadísticas de ping para 170.6.2.23: 
+ Paquetes: enviados = 4, recibidos = 3, perdidos = 1 <25% perdidos>, 
+Tiempos aproximados de ida y vuelta en milisegundos: 
+ Mínimo = 237.1 ms, Máximo = 244.8 ms, Media = 241.1 ms 
+a) A cuántas redes de distancia estima que podría estar el destino? 
+
+b) A qué se podría deber el paquete perdido? 
+
+21. Un host A envía a otro host B un datagrama de 8000 bytes (incluida la cabecera IP, que tiene 20 bytes). El 
+datagrama se fragmenta en ruta de forma que B recibe varios datagramas que suman en total 8100 bytes 
+(incluidas las cabeceras). ¿Cuántos fragmentos ha recibido B? Desarrollar la respuesta. 
+
+
+
+
+
+
+
+22. En el esquema de red de la figura siguiente los equipos A y B son computadoras de usuario mientras que 
+los equipos R1 y R2 son enrutadores. No se utiliza la funcionalidad de NAT (Network Address Translation). 
+En LAN1 se dispone de 80 equipos como B y en LAN2 45 como A. 
+Se dispone del rango de direcciones 200.40.0.0/24 para asignar a las subredes LAN1 y LAN2. La asignación 
+debe realizarse teniendo en cuenta que no habrá crecimiento de equipos en LAN1 y LAN2. 
+a) Asignar un rango de direcciones a cada LAN. 
+
+
+200.40.0.0/24 - Es clase C
+
+Para A necesitamos que el host tenga como mínimo 2^7 bits.
+
+1 | 0
+
+CONFLICTO CON LAS DOS SUBREDES DE LA DERECHA
+
+200.40.0.2/30
+200.40.0.1/30
+
+
+				     | 00 -- RED
+Mascara de red: 200.40.0. (0000 00XX)| 01 -- USADA
+				     | 10 -- USADA
+				     | 11 -- BROADCAST
+
+
+
+----------------------
+RED : 200.40.0.0
+-----------------
+… 
+
+Para 200.40.0.1xxx xxxx …  mando las x a 0
+
+-------------------------
+RED LAN 1  200.40.0.128 
+-------------------------
+
+Esta puede direccionar 2^7 interfaces
+
+Esto es para la LAN 1
+
+
+
+Para la LAN 2 hago un subnetting de vuelta pero teniendo en cuenta el 1 que ya usé
+
+|------|-----|
+|      | 01  |
+|  1   | 00  |
+|------|-----|
+
+Uso la del 01 ya que la red de la derecha esta usada en el 00
+
+-----------------------
+RED LAN 2  240.40.0.64
+-----------------------
+Prefijo: /26
+
+Tiene 2^6 - 2 lugares para interfaces = 62
+
+
+
+b) Asignar direcciones IP a los equipos A, B, R1 y R2. El enlace de R1 con Internet es un enlace punto a punto 
+configurado con las direcciones indicadas en la figura. 
+
+B: 		240.40.0.129/25
+R2_lan1:	240.40.0.130/25
+
+A: 		240.40.0.65/26
+R2_LAN2:	240.40.0.66/26
+R1:		240.40.0.67/26
+
+
+
+c) Especificar las tablas de rutas necesarias en los equipos para que puedan comunicarse entre sí y con 
+cualquier equipo de Internet. 
+
+R1)
+
+
+	DESTINO		 | 		MASCARA 		| 		NEXT HOP		 | 	INTERFAZ
+	240.40.0.64		     255.255.255.64				 …  				  eth0
+	240.40.0.0		      255.255.0.0 				 … 			  	  eth1
+	240.40.0.128/25	             255.255.255.128			     240.40.0.66/26   		          eth0
+Default
+Gateway: 0.0.0.0		   	0.0.0.0				 	240.40.0.2			  eth1
+
+
+R2)    
+
+	DESTINO		 | 		MASCARA 		| 		NEXT HOP		 | 	INTERFAZ
+	200.40.0.128			/25					… 				eth1
+	200.40.0.64 			/26					… 				eth0
+	0.0.0.0				/0					240.40.0.67			eth0
+
+
+
+23. Una empresa compra el rango de direcciones IP 152.165.10.0/23. Si se quiere dividir la red en dos 
+subredes iguales, ¿cuáles serían (formato a.b.c.d/x) y cuántos equipos podrían direccionarse en cada una 
+de ellas? Indicar también la dirección de broadcast de cada subred. 
+
+
+
+152.165.0000 101|0.0000 0000
+
+si la divido por la mitad, quiero tomar un bit mas
+
+152.165.0000 101x.0 = 152.165.255.0/24  se pueden tomar 2^8 - 2 direcciones para hosts
+
+152.165.10
+
+
+
+24. Una gran empresa desea asignar una dirección pública a cada uno de sus servidores y a cada uno de sus 
+routers (R1, R2 y R3). La empresa dispone de 40 servidores en su sede A, 28 servidores en su sede B y 5 
+servidores en su sede C. Para ello, la empresa adquirió el rango 187.199.32.0/25. 
+
+a) Realizar la asignación de rangos a las diferentes subredes A, B, C, D, E y F. 
+
+Ejercicio con VLSM
+
+187.199.32.0 /25 y quiero :
+	40 host
+	28 hosts
+	5 hosts
+	3 x 2 hosts
+
+Para 40 hosts: 2^6 - 2 = 62
+
+187.199.32.00xx xxxx -> 
+
+
+b) Proponer una IP para cada interfaz de cada router. 
+
+c) Proponer una IP para un servidor en A, otro en B y otro en C. 
+
+25. Responda a las siguientes preguntas justificando sus respuestas. 
+a) Dada la dirección IP 192.168.1.1 con máscara de 24 bits en 1 (/24), indicar dirección de red que 
+identifica el bloque, dirección de broadcast y máscara de red en notación decimal separada por 
+puntos. 
+
+b) Dada la dirección IP 10.1.1.35 y máscara 255.255.255.248, indicar el rango de direcciones IP que 
+pertenecen a su LAN. 
+
+c) ¿Es posible sumarizar en un solo rango los siguientes bloques de direcciones IP: 200.40.0.0/20, 
+200.40.16.0/21, 200.40.24.0/21, 200.40.32.0/19, 200.40.64.0/18 y 200.40.128.0/17, en un solo rango 
+con notación A.B.C.D/M? En caso afirmativo, hallar A, B, C, D y M. 
+26. Suponer que usted es el administrador de red de un ISP y se dispone del bloque de direcciones: 
+128.20.224.0/20. El ISP tiene dos clientes con redes de 1.000 nodos cada una; dos clientes con redes de 
+500 nodos cada una y tres clientes con redes de 250 nodos cada una. ¿Cuáles serán los bloques de 
+direcciones que usted asignará a los clientes? Suponer que todos los clientes restantes tienen redes de 50 
+nodos cada una. ¿A cuántos de esos clientes podrá asignarle direcciones? 
+
+27. Considere la red de la figura. 
+ En todo momento estamos suponiendo como máscara de red: 255.255.255.0. Las direcciones MAC 
+se representan por el último byte. 
+ Se supone que las PCs funcionan bien y, si reciben un mensaje ICMP Echo, responden 
+adecuadamente. 
+ Se supone que los routers funcionan bien y envían mensajes ICMP adecuados si no encuentran una 
+ruta. 
+ El TTL inicial es 5. 
+ En la nube, para llegar a H1, se pasa por 3 routers: 62.21.4.1; 62.21.5.5; 34.56.78.1 
+Responder: 
+a) ¿Qué valores puede adoptar la IP de PC5? ¿Por qué? 
+
+b) ¿Cuáles serán las direcciones origen y destino de los datagramas que saldrán de R1 cuando PC1 envíe 
+datagramas a H1? 
+
+c) PC1, PC2 y PC3 envían un ping a PC4. ¿Qué ruta seguirán los mensajes enviados y recibidos en cada 
+caso? 
+
+28. En la figura se muestra una red. Al lado de cada máquina aparece su tabla de ruteo. Al lado de cada 
+interfaz de comunicaciones aparece su dirección IP (salvo en el caso de la máquina B). 
+a) Asignar una dirección IP a la interfaz de comunicaciones de la máquina B. 
+
+b) Responder: 
+1) ¿Puede A enviar datagramas IP a C? 
+
+2) ¿Puede D enviar datagramas IP a C? 
+
+c) Modificar la tabla de ruteo de R2 para que: 
+ D pueda enviar datagramas IP a A 
+ C pueda enviar datagramas IP a A 
+
+29. Sea la red de la figura. Si un host en D hace un ping a un host en A configurando el ping con un solo 
+mensaje y TTL = 4 indique todos los datagramas que se generarán como producto de ese ping y sus 
+recorridos. Indicar los campos relevantes de cada uno de ellos.
+
+30. En la figura se muestra una red basada en protocolos TCP/IP. La máscara de cada subred es 
+255.255.255.0. No se permiten rutas por defecto. La tabla de enrutamiento de A se muestra en la figura. 
+El resto de tablas se supone que no impiden ningún camino de comunicación. 
+Responder y justificar: 
+a) ¿Qué dirección IP podría tener H? ¿Y F? 
+
+b) ¿Puede hablar A con C? 
+
+c) ¿Puede hablar A con E? 
+
+d) ¿Cómo habría que actualizar alguna tabla de encaminamiento para que A hable con C pero no con D? 
+
+e) Explicar la secuencia de tramas que precede a la recepción del primer datagrama enviado de E a C, 
+explicando el significado y contenido de los campos más significativos. Asignar las direcciones 
+Ethernet que se consideren convenientes. 
+
+31. Para el diagrama indicado, configure las rutas en cada uno de los routers de manera de 
+obtener conectividad completa en la red: 
+
+32. Dada la siguiente tabla de ruteo de un host, resuelva: 
+Rutas activas: 
+Destino de red   Máscara de red  Siguiente Salto  Interfaz   Métrica 
+0.0.0.0   0.0.0.0   10.6.2.241   10.6.2.52   20 
+10.6.0.0   255.255.0.0     10.6.2.52  20 
+10.6.2.52  255.255.255.255     127.0.0.1  20 
+10.255.255.255   255.255.255.255     10.6.2.52   20 
+127.0.0.0   255.0.0.0     127.0.0.1   1 
+224.0.0.0 240.0.0.0     10.6.2.52   20 
+
+a) Un datagrama enviado por dicho host cuya dirección destino es 145.57.2.98, por qué 
+interfaz sale y cuál es el siguiente salto para dicho datagrama? 
+
+b) Un datagrama enviado por dicho host cuya dirección destino es 127.0.3.4, por qué 
+interfaz sale y cuál es el siguiente salto para dicho datagrama? 
+
+c) Si se elimina la primer entrada de la tabla de ruteo y se envía un datagrama por dicho 
+host cuya dirección destino es 201.11.3.124, por qué interfaz sale y cuál es el siguiente 
+salto para dicho datagrama? 
+
+33. Dadas las siguientes redes:
+a) 200.2.4.0/24  
+
+b) 200.5.6.0/24  
+
+c) 200.67.5.0/24  
+
+d) 200.34.5.0/24  
+
+f) 200.96.12.0/24  
+
+g) 200.96.34.0/24  
+
+h) 200.96.200.0/24
+
+Grafique una red tal que permita interconectar a todas ellas. Luego escriba la tabla de 
+ruteo en cada uno de los routers utilizados considerando que se trabaja con ruteo 
+classless.
+
+34. Conteste a las siguientes preguntas relativas a las direcciones IP:
+a) Indique la dirección de red correspondiente a la dirección IP 192.168.100.115 
+considerando una máscara 255.255.255.240. 
+
+IP 192.168.100.115
+M  255.255.255.240
+
+= 192.168.100.112
+
+b) Usted está diseñando una red a partir de una dirección clase A. Desea poder 
+asignar 16.000 hosts en cada subred. Determine la máscara a utilizar para 
+satisfacer ese requisito. 
+
+MASK CLASE A: 255.0.0.0
+
+Con 14 bits de host tengo 16382 direcciones disponibles
+
+255.xxxx xxxx. xx00 0000. 0000 0000 -> Cambio las x's por 1's
+
+255.255.192.0
+
