@@ -315,12 +315,12 @@ luego del cambio?
 
 c. ¿Cuáles eran antes de realizar este cambio?
 
-27. Análisis de captura de paquetes del protocolo DNS.
+27. **Análisis de captura de paquetes del protocolo DNS.
 a. Mediante el comando ipconfig /all obtener:
 Dirección IPv4 e IPv6 la placa de red o de WiFi según corresponda:
 Dirección MAC:
 Dirección IP de la puerta de enlace predeterminada:
-Direcciónes IP del servidor DNS:
+Direcciónes IP del servidor DNS:**
 
 b. En Wireshark, en Interface List (captura-opciones-entrada) elija la asociada a la IP
 y MAC registrada en a.
